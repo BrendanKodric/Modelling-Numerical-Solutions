@@ -1,0 +1,110 @@
+#include "pch.h"
+#include <string>
+#include <iostream>
+# include <math.h>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+	double Coefficent[9], Multiply, Divide, X_Input, P_Output;
+	string New_Calc = "A";
+	double P_Array[9][2] =
+	{
+		{220,17.188},
+		{230,20.78},
+		{240,24.97},
+		{250,29.82},
+		{260,35.42},
+		{270,41.85},
+		{280,49.18},
+		{290,57.53},
+		{300,66.98} 
+	};
+
+	Coefficent[0] = P_Array[0][1];
+
+	Coefficent[1] = (P_Array[1][1] - Coefficent[0]) / (P_Array[1][0] - P_Array[0][0]);
+
+	for (int k = 2; k < 9; k++)
+	{
+		Coefficent[k] = P_Array[k][1] - Coefficent[0];
+		Divide = 1;
+		Divide = Divide * (P_Array[k][0] - P_Array[0][0]);
+		
+		for (int i = 1; i < k; i++)
+		{
+			Multiply = 1;
+			
+			for (int x = 0; x < i; x++)
+			{
+				Multiply = Multiply * (P_Array[k][0] - P_Array[x][0]);
+			}
+
+			Coefficent[k] = Coefficent[k] - Coefficent[i] * Multiply;
+			Divide = Divide * (P_Array[k][0] - P_Array[i][0]);
+		}
+		Coefficent[k] = Coefficent[k] / Divide;
+	}
+
+	cout << " Temp.		Pressure	Coefficients";
+	cout << endl;
+	cout << " ____________________________________________";
+	cout << endl;
+
+	for (int k = 0; k < 9; k++)
+	{
+		cout << " " << P_Array[k][0];
+		cout << "\t \t";
+		cout << P_Array[k][1];
+		cout << "\t \t";
+		cout << Coefficent[k];
+		cout << endl;
+	}
+	
+	cout << "\n Therefore, the equation of the system is: \n ";
+
+	cout << Coefficent[0] << " + " << Coefficent[1] << "(x-220) + "
+		<< Coefficent[2] << "(x-220)(x-230) + "
+		<< Coefficent[3] << "(x-220)(x-230)(x-240) \n + "
+		<< Coefficent[4] << "(x-220)(x-230)(x-240)(x-250) + "
+		<< Coefficent[5] << "(x-220)(x-230)(x-240)(x-250)(x-260) \n + "
+		<< Coefficent[6] << "(x-220)(x-230)(x-240)(x-250)(x-260)(x-270) \n + "
+		<< Coefficent[7] << "(x-220)(x-230)(x-240)(x-250)(x-260)(x-270)(x-280) \n + "
+		<< Coefficent[8] << "(x-220)(x-230)(x-240)(x-250)(x-260)(x-270)(x-280)(x-290) \n";
+
+	do
+	{
+		cout << endl;
+		cout << " Enter a temperature(*F) value: ";
+		cin >> X_Input;
+
+		P_Output = Coefficent[0];
+
+		for (int i = 1; i < 9; i++)
+		{
+			Multiply = 1;
+			for (int x = 0; x < i; x++)
+			{
+				Multiply = Multiply * (X_Input - P_Array[x][0]);
+			}
+			P_Output = P_Output + Coefficent[i] * Multiply;
+		}
+
+		cout << " The pressure at ";
+		cout << X_Input;
+		cout << "*F is: ";
+		cout << P_Output;
+		cout << " lb/in^2. " << endl;
+
+		cout << endl;
+		cout << " Enter 'A' to calcualte the pressure at a different temperature. \n"
+			<< " Enter anything else to close the program.\n";
+		cin >> New_Calc;
+	} while (New_Calc == "a" || New_Calc == "A");
+	
+	cin.get();
+	return 0;
+}
+ 
