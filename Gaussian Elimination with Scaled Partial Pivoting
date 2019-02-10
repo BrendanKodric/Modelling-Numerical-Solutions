@@ -1,0 +1,120 @@
+// Gaussian Differentials.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include "pch.h"
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+void PrintArray(int, double A[][4] , double B[4], int i[4]);
+
+int main()
+{
+	const int size = 4;
+	int k, j, n;
+
+	// The Equation Array
+	double A[size][size] =
+	{
+		{2,-1,3,7},
+		{4,4,0,7},
+		{2,1,1,3},
+		{6,5,4,17}
+	};
+
+	// The 'solution' Array
+	double B[size] = { 15,11,7,31 };
+
+	int i[size] = { 0, 1, 2, 3 }; // Index
+	double s[size] = { 7, 7, 3, 17 }; // Scaling Vector
+	double r[size] = { 2 / 7, 4 / 7, 2 / 3, 6 / 17 }; // Ratio Vector
+
+	// Output the Array
+	cout << "\nFind  the  currents I1, I2, I3,  and I4 that flow through an electrical circuit model "
+		"using Kirchhoff’s law.\nThe matrix's values are as follows:\n" << endl;
+
+	PrintArray(size, A, B, i);
+
+	cout << "\nCommence: 'Solve this system using Gaussian elimination with scaled partial pivoting.'\n" << endl;
+
+	// Re-ordering the matrix.
+	i[0] = 2; i[1] = 1; i[2] = 0; i[3] = 3;
+
+	cout << "Step 1: Re-ordering the matrix.\n" << endl;
+
+	PrintArray(size, A, B, i);
+
+	// 1st column math.
+	for (j = 0; j < size; j++)
+	{
+		A[1][j] = A[1][j] - 2 * A[2][j];	// 0 = R2 - 2*R3
+		A[0][j] = A[0][j] - A[2][j];		// 0 = R1 - R3
+		A[3][j] = A[3][j] - 3 * A[2][j];	// 0 = R4 - 3*R3
+	}
+	B[1] = B[1] - 2 * B[2];
+	B[0] = B[0] - B[2];
+	B[3] = B[3] - 3 * B[2];
+
+	cout << "Step 2: Calculating 0's in the 1st column." << endl;
+	cout << "--> Row 2 = R2 - 2*R1\n" << "--> Row 3 = R3 - R1\n" << "--> Row 4 = R4 - 3*R1\n" << endl;
+
+	PrintArray(size, A, B, i);
+
+	// 2nd column math.
+	for (j = 1; j < size; j++)
+	{
+		A[0][j] = A[0][j] + A[1][j];		// 0 = R1 + R2
+		A[3][j] = A[3][j] - A[1][j];	// 0 = R4 - R2
+	}
+	B[0] = B[0] + B[1];
+	B[3] = B[3] - B[1];
+
+	cout << "Step 3: Calculating 0's in the 2nd column.\n" << endl;
+	cout << "--> Row 3 = R3 + R2\n" << "--> Row 4 = R4 - R2\n" << endl;
+
+	PrintArray(size, A, B, i);
+
+	// Re-ordering the matrix, again.
+	i[0] = 2; i[1] = 1; i[2] = 3; i[3] = 0;
+
+	cout << "\nStep 4: Re-order matrix such that the 3rd row swaps with the 4th. \n" << endl;
+
+	PrintArray(size, A, B, i);
+
+	// Solving for Current (I1, I2, I3, I4).
+
+	double I1, I2, I3, I4;
+
+	I4 = B[0] / A[0][3];
+
+	I3 = (B[3] - (A[3][3] * I4)) / A[3][2];
+
+	I2 = (B[1] - A[1][2] * I3 - A[1][3] * I4) / A[1][1];
+
+	I1 = (B[2] - A[2][1] * I2 - A[2][2] * I3 - A[2][3] * I4) / A[2][0];
+
+	cout << "The matrix can now be solved to get the values of I1, I2, I3, and I4." << endl;
+	cout << "\n" << "I1 = " << I1 << " amps" << "\n" << "I2 = " << I2
+		<< " amps" << "\n" << "I3 = " << I3 << " amps" << "\n" << "I4 = " << I4 << " amps" << endl;
+
+	cin.ignore();
+	cin.get();
+	return 0;
+}
+
+// Print Array Function
+void PrintArray(int size, double A[][4], double B[], int i[])
+{
+	int k, j;
+	for (k = 0; k < size;)
+	{
+		for (j = 0; j < size; j++)
+		{
+			cout << A[(i[k])][j] << "\t";
+		}
+		cout << "| \t" << B[(i[k])] << endl;
+		k++;
+	}
+	cout << endl;
+}
