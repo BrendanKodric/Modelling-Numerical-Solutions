@@ -1,0 +1,109 @@
+//normal equations
+// eq1
+//SUM[yk*ln(Xk)] = SUM[a*(ln(Xk))^2] + SUM[b*(sin(Xk)*ln(Xk)] + SUM[c*ln(Xk)] 
+// eq2
+//SUM[yk*sin(Xk)] = SUM[a(ln(Xk)*sin(Xk))] + SUM[b(sin(Xk))^2] + SUM[c*sin(Xk)]
+// eq3
+//SUM(yk) = SUM[a*ln(Xk)] + SUM[b*sin(Xk)] + SUM(c)
+
+#include "pch.h"
+#include <string>
+#include <iostream>
+#include <math.h>
+#include <iomanip>
+
+using namespace std;
+
+int main()
+{
+	double time[10] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 };
+	double temp[10] = { 52, 50.5, 52, 53.2, 51.5, 51.9, 54, 52.5, 51.9, 55 };
+	
+	double lnX = 0, sinX = 0, yk = 0;
+	double a = 0, b = 0, c = 0, y = 0, 
+	double a1 = 0, b1 = 0, c1 = 0, y1 = 0,
+	double a2 = 0, b2 = 0, c2 = 0, y2 = 0;
+
+	for (int i = 0; i < 10; i++) 
+	{
+		lnX = log(time[i]);
+		sinX = sin(time[i]);
+		yk = temp[i];
+		
+		//a0;a1;a2
+		a = a + pow(lnX, 2);
+		a1 = a1 + lnX * sinX;
+		a2 = a2 + lnX;
+		
+		//b0;b1;b2
+		b = b + sinX * lnX;
+		b1 = b1 + pow(sinX, 2);
+		b2 = b2 + sinX;
+		
+		//c0;c1;c2
+		c = c + lnX;
+		c1 = c1 + sinX;
+		c2 = c2 + 1;
+		
+		//y0;y1;y2
+		y += yk * lnX;
+		y1 += yk * sinX;
+		y2 += yk;
+	}
+
+	cout << "a) Least Squares Method" << endl;
+
+	cout << "a" << setw(12) << "b" << setw(12) << "c" << setw(12) << "y" << endl;
+
+	cout << setprecision(4) << fixed << a << setw(12) << b << setw(12) << c << setw(12) << y << endl;
+
+	cout << a1 << setw(12) << b1 << setw(12) << c1 << setw(12) << y1 << endl;
+
+	cout << a2 << setw(12) << b2 << setw(12) << c2 << setw(12) << y2 << endl << endl;
+
+	//defining U and L 
+	double L[3][3] = { { 1, 0, 0 },{ a1 / a, 1, 0 },{ a2 / a, 0, 1 } };
+	double U[3][3] = { { a, b, c },{ 0, 0, 0 },{ 0, 0, 0 } };
+	double d1, d2, d3, e1, e2, e3;
+
+	//LU Factorization
+	U[1][1] = b1 - (b * (a1 / a));
+	U[2][1] = b2 - (b * (a2 / a));
+	U[1][2] = c1 - (c * (a1 / a));
+	U[2][2] = c2 - (c * (a2 / a));
+	U[2][2] = U[2][2] - (U[1][2] * U[2][1] / U[1][1]);
+	L[2][1] = U[2][1] / U[1][1];
+	
+	//Ly=b
+	d1 = y;
+	d2 = y1 - (L[1][0] * d1);
+	d3 = y2 - (L[2][0] * d1) - (L[2][1] * d2);
+	
+	//Ux=y
+	e3 = d3 / U[2][2];
+	e2 = (d2 - (U[1][2] * e3)) / U[1][1];
+	e1 = (d1 - (U[0][2] * e3) - (U[0][1] * e2)) / U[0][0];
+
+	cout << "b) coefficients" << endl;
+	cout << "a" << setw(10) << e1 << endl;
+	cout << "b" << setw(10) << e2 << endl;
+	cout << "c" << setw(10) << e3 << endl << endl;
+
+	//find temp @ 7hr, 17hr
+	double tval, tval1, error, tval2;
+	tval = (e1*log(7)) + (e2*sin(7)) + e3;
+	tval1 = (e1*log(17)) + (e2*sin(17)) + e3;
+	tval2 = (e1*log(8)) + (e2*sin(8)) + e3;
+
+	cout << "c) Estimation and error" << endl;
+	cout << "temperature @ 7 hrs:" << tval << " C" << endl;
+	cout << "temperature @ 17 hrs:" << tval1 << " C" << endl;
+	
+	//relative error @ 8 hrs
+	error = ((tval2 - 53.2) / tval2) * 100;
+	cout << "Relative Error @ 8hrs:" << error << "%";
+
+	cin.get();
+	return 0;
+}
+
