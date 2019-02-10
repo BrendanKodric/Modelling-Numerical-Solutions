@@ -1,0 +1,107 @@
+#include "pch.h"
+#include <iostream>
+#include <iomanip>
+#include <cmath>
+
+using namespace std;
+
+void XP_System(int n, double x[], double f[][4])
+{
+	f[0][n] = -(10.0 / 20.0) * x[0];
+	f[1][n] = (10.0 / 20.0) * x[0] - (10.0 / 40.0) * x[1];
+	f[2][n] = (10.0 / 40.0) * x[1] - (10.0 / 50.0) * x[2];
+}
+
+void RK4_System(int n, double h, double x[], int nsteps)
+{
+	int i = 0, j;
+	double y[3], K[3][4];
+	bool Smallest_1 = true, 
+		Smallest_2 = true, 
+		Smallest_3 = true;
+
+	for (j = 0; j <= nsteps; j++)
+	{
+		XP_System(0, x, K);
+		for (i = 0; i < n; i++)
+		{
+			y[i] = x[i] + 0.5 * (h * K[i][0]);
+		}
+		XP_System(1, y, K);
+		for (i = 0; i < n; i++)
+		{
+			y[i] = x[i] + 0.5 * (h * K[i][1]);
+		}
+		XP_System(2, y, K);
+		for (i = 0; i < n; i++)
+		{
+			y[i] = x[i] + 0.5 * (h * K[i][2]);
+		}
+		XP_System(3, y, K);
+		for (i = 0; i < n; i++)
+		{
+			x[i] = x[i] + (h / 6) * (K[i][0] + (2 * K[i][1]) + (2 * K[i][2]) + K[i][3]);
+		}
+		// Print Runge-Kutta 4th Order Method
+		if (nsteps == 100)
+		{
+			cout << x[0] << setw(18) << x[1] << setw(18) << x[2] << endl;
+		}
+		if (nsteps == 10000)
+		{
+			//Print smallest values
+			if (x[0] <= 0.001)
+			{
+				if (Smallest_1 == true)
+				{
+					cout << "The smallest value of t for X1' is: " << j * 0.01 << " Minutes" << endl;
+					Smallest_1 = false;
+				}
+
+			}
+			if (x[1] <= 0.001)
+			{
+				if (Smallest_2 == true)
+				{
+					cout << "The smallest value of t for X2' is: " << j * 0.01 << " Minutes" << endl;
+					Smallest_2 = false;
+				}
+
+			}
+			if (x[2] <= 0.001)
+			{
+				if (Smallest_3 == true)
+				{
+					cout << "The smallest value of t for X3' is: " << j * 0.01 << " Minutes" << endl;
+					Smallest_3 = false;
+				}
+			}
+		}
+
+	}
+}
+
+
+int main()
+{
+	int const n = 3;
+	int nsteps = 100;
+	double a = 0, b = 10;
+	double h = (b - a) / nsteps, x[n];
+	x[0] = 25;
+	x[1] = 20;
+	x[2] = 10;
+
+	cout << "X1'" << setw(18) << "X2'" << setw(18) << "X3'" << endl;
+	cout << "_________________________________________________________" << endl;
+	cout << x[0] << setw(18) << x[1] << setw(18) << x[2] << endl;
+	// Runge-Kutta 4th Order Method
+	RK4_System(n, h, x, nsteps);
+
+	//Find smallest values in range for each differential equation
+	int nsteps_2 = 10000;
+	double h_2 = 0.01;
+	RK4_System(n, h_2, x, nsteps_2);
+
+	return 0;
+}
