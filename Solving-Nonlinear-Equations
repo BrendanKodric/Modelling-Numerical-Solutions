@@ -1,0 +1,149 @@
+#include "pch.h"
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+
+using namespace std;
+
+//Functions
+double function(double), function_derivative(double), X_New_Newton(double, double, double), Error(double, double); 
+double X_New_Secant(double, double, double, double);
+
+int main()
+{
+	double E, Count = 1, x = 0;		// General Variables.
+	double  F, F_D, X_n;		// Variables for Newton Method.
+	double X_0, X_1, F_0, F_1;	// Variables for Secant Method.
+	int Choice;
+
+	cout << "-5 + 0.25x^2 - xsin(x-1) - 0.5cos(2x) = 0" << endl;
+	
+	cout << "\n Would you like to calculate the root of this non-linear equation using the " 
+		"Newton Method (1) or the Secant Method (2)?" << endl;
+
+	cin >> Choice;
+
+	if (Choice == 1)
+	{
+		cout << "Use the Newton Method to find the roots of this equation with an accuracy of 10^-5." << endl;
+		cout << "What is your inital guess for the root location?" << endl << endl;
+		cin >> x;
+
+		// Setup an outup table.
+		cout << "\n" << '\t' << "  X   " << '\t' << '\t' << "|" << '\t' << " X New     " << '\t' << "|" << '\t' << "Error" << endl;
+		cout << "____________________________________________________________________";
+
+		// Call funtions and do calculations for 1st root values.
+		F = function(x);
+		F_D = function_derivative(x);
+		X_n = X_New_Newton(F, F_D, x);
+		E = Error(x, X_n);
+
+		// Output values into table.
+		cout << "\n" << '\t' << x << "     " << '\t' << "|" << '\t' << X_n << "     " << '\t' << "|" << '\t' << E;
+
+		// If the initial "Guess X" does't yield a solution, perform calculations until you get one.
+		while (E >= 0.00001 or E <= -0.00001)
+		{
+			Count += 1;
+
+			x = X_n; // 
+
+			F = function(x);
+			F_D = function_derivative(x);
+			X_n = X_New_Newton(F, F_D, x);
+			E = Error(x, X_n);
+
+			cout << "\n" << '\t' << x << "     " << '\t' << "|" << '\t' << X_n << "     " << '\t' << "|" << '\t' << E;
+		}
+
+		cout << "\n\nThe calculated root of the non-linear equation is " << x << endl;
+
+		cout << "\nCalculated in " << Count << " runs." << endl;
+	}
+
+	if (Choice == 2) // Code for Secant Method
+	{
+		cout << "Use the Secant Method to find the roots of this equation with an accuracy of 10^-5." << endl;
+		cout << "Enter the 1st guess value for the root location." << endl << endl;
+		cin >> X_0;
+		cout << "Enter the 2nd guess value for the root location." << endl << endl;
+		cin >> X_1;
+	
+		// Setup an outup table.
+		cout << "\n" << '\t' << "  X   " << '\t' << '\t' << "|" << '\t' << " X New     "  << '\t' << "|" << '\t' << "Error" << endl;
+		cout << "____________________________________________________________________";
+	
+		// Call funtions and do calculations for 1st root values.
+		x = X_0;
+		F_0 = function(x);
+		x = X_1;
+		F_1 = function(x);
+		X_n = X_New_Secant(X_0, X_1, F_0, F_1);
+		E = Error(x, X_n);
+
+		X_0 = X_1;
+		X_1 = X_n;
+	
+		// Output values into table.
+		cout << "\n" << '\t' << X_1 << "     " << '\t' << "|" << '\t' << X_n << "     " << '\t' << "|" << '\t' << E;
+		
+		// If the initial "Guess X" does't yield a solution, perform calculations until you get one.
+		while (E >= 0.00001 or E <= -0.00001)
+		{
+			Count += 1;
+
+			x = X_0;
+			F_0 = function(x);
+			x = X_1;
+			F_1 = function(x);
+			X_n = X_New_Secant(X_0, X_1, F_0, F_1);
+			E = Error(x, X_n);
+
+			cout << "\n" << '\t' << X_1 << "     "  << '\t' << "|" << '\t' << X_n << "     " << '\t' << "|" << '\t' << E;
+
+			X_0 = X_1;
+			X_1 = X_n;
+		}
+
+		cout << "\n\nThe calculated root of the non-linear equation is " << X_n << endl;
+
+		cout << "\nCalculated in " << Count << " runs." << endl;
+	}
+
+	return (0);
+}
+
+double function(double x)
+{
+	double f;
+	f = -5 + 0.25*(pow(x,2)) - (x)*(sin((x)-1)) - 0.5*(cos(2 * (x))); // Calculate the function.
+	return f;
+}
+
+double function_derivative(double x)
+{
+	double f;
+	f = 0.5*(x)+sin(2 * (x)) - (x)*cos((x)-1) - sin((x)-1); // Calculate the function's derivative.
+	return f;
+}
+
+double X_New_Newton(double F, double F_D, double x)
+{
+	double Xnew;
+	Xnew = x - (F / F_D);
+	return Xnew;
+}
+
+double Error(double x, double X_n)
+{
+	double E = X_n - x;
+	return E;
+}
+
+double X_New_Secant(double X_0, double X_1, double F_0, double F_1)
+{
+	double Xnew;
+	Xnew = X_1 - ((X_1 - X_0) / (F_1 - F_0)) * F_1;
+	return Xnew;
+}
