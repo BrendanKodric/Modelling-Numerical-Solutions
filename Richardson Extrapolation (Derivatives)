@@ -1,0 +1,74 @@
+#include "pch.h"
+#include <string>
+#include <iostream>
+#include <math.h>
+#include <iomanip>
+
+using namespace std;
+
+double Function(double);
+
+int main()
+{
+	int i, j, n;
+	double T1, T2, A, x, h;
+	double LocalMin = 0, LocalMax = 0, count, Last_D;
+
+	double d[3][3];
+	
+	cout << "  X \t   f'(x) \n____________________\n";
+
+	// Loop for derivative calculations. Final derivative in d[2][2]
+	for (x = 0; x <= 10;)
+	{
+		h = 0.5;
+		for (i = 0; i <= 2; i++)
+		{
+			A = x + h;
+			T1 = Function(A);
+			A = x - h;
+			T2 = Function(A);
+			d[i][0] = (T1 - T2) / (2 * h);
+	
+			for (j = 1; j <= i; j++)
+			{
+				d[i][j] = d[i][(j - 1)] + (d[i][(j - 1)] - d[i - 1][(j - 1)]) / (pow(4, (j - 1)));
+			}
+			h = h / 2;
+			
+		}
+		if (x >= 0.1)
+		{
+			// Does the derivative go from (-) to (+)?
+			if (d[2][2] < 0)
+			{
+				if (Last_D > 0)
+				{
+					LocalMin++;
+				}
+			}
+			// Does the derivative go from (+) to (-)?
+			if (d[2][2] > 0)
+			{
+				if (Last_D < 0)
+				{
+					LocalMax++;
+				}
+			}
+		}
+		Last_D = d[2][2];
+
+		cout << " " << x << "\t " << d[2][2] << endl;
+		x = x + 0.1;
+	}
+	cout << "\n Local Min Value Count = " << LocalMin << "\n Local Max Value Count = " << LocalMax << endl;
+	return 0;
+}
+
+// Calculate function with x increment
+double Function(double A)
+{
+	double f;
+	f = pow(sqrt(exp(sin(A)) + 5), (-cos(3 * A) * sin(5 * A)));
+	return f;
+}
