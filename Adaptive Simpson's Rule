@@ -1,0 +1,72 @@
+/* Adaptive Simpson's Rule
+   P = 1/T ∫{ (x^2)(t) }dt
+   x(t) = sin(3 * t) + sin(4 * t) + sin(6 * t)
+*/
+#include "pch.h"
+#include <string>
+#include <iostream>
+#include <math.h>
+#include <iomanip>
+
+using namespace std;
+
+double function(double);
+double Simpson(double, double, double, double, double);
+
+
+int main()
+{
+	int level = 0, level_max = 10;
+	double a = 0, b, error = 0.001, Integral_S, P, T;
+
+	cout << "\n Use the Adaptive Simpson's Algorithm to calculate the time-averaged power of a periodic signal.\n"
+		<< "\n Enter the period (T) for which you would like to measure the power (P): ";
+	cin >> T;
+	b = T;
+	Integral_S = Simpson(a, b, error, level, level_max);
+	P = 1 / T * Integral_S;
+
+	cout << "\n\n The approximated value of time-averaged power (P) over the period 0 to " << T << " is: " << P << "\n\n";
+
+	return 0;
+}
+
+double function(double t)
+{
+	double x = pow((sin(3 * t) + sin(4 * t) + sin(6 * t)), 2);
+	return x;
+}
+
+double Simpson(double a, double b, double error, double level, double level_max)
+{
+	double c, d, e, h;
+	double Simpson_Result, One_Simpson, Two_Simpson, Left_Simpson, Right_Simpson;
+
+	level = level + 1;
+	h = b - a;
+	c = (a + b) / 2;
+	One_Simpson = (h / 6) * (function(a) + 4 * function(c) + function(b));
+	d = (a + c) / 2;
+	e = (c + b) / 2;
+	Two_Simpson = (h / 12) * (function(a) + 4 * function(d) + 2 * function(c) + 4 * function(e) + function(b));
+
+	if (level >= level_max)
+	{
+		Simpson_Result = Two_Simpson;
+		cout << "\n Maximum level reached.\n";
+	}
+	else
+	{
+		if (abs(Two_Simpson - One_Simpson) < (15 * error))
+		{
+			Simpson_Result = Two_Simpson + (Two_Simpson - One_Simpson) / 15;
+		}
+		else
+		{
+			Left_Simpson = Simpson(a, c, error / 2, level, level_max);
+			Right_Simpson = Simpson(c, b, error / 2, level, level_max);
+			Simpson_Result = Left_Simpson + Right_Simpson;
+		}
+	}
+	return Simpson_Result;
+}
