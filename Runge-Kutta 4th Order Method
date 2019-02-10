@@ -1,0 +1,49 @@
+#include "pch.h"
+#include <string>
+#include <iostream>
+#include <math.h>
+#include <iomanip>
+
+using namespace std;
+
+double Function(double t, double x)
+{
+	double Sum, k = 6.22*(pow(10,-19));
+	int n1 = 2000, n2 = 2000, n3 = 3000;
+	Sum = k * (pow((n1 - (x / 2)), 2) * pow((n2 - (x / 2)), 2) * pow((n3 - (3 * x) / 4), 3));
+	return Sum;
+}
+
+// Calculate Runge-Kutta 4th Order Method
+void RK4(double t, double x, double h, double n)
+{
+	int j;
+	double K1, K2, K3, K4, t_a;
+	t_a = t;
+	// Loop calculations for n=100 iterations for accuracy.
+	for (j = 1; j < n; j++) {
+		K1 = h * Function(t, x);
+		K2 = h * Function((t + (1.0 / 2) * h), (x + (1.0 / 2) * K1));
+		K3 = h * Function((t + (1.0 / 2) * h), (x + (1.0 / 2) * K2));
+		K4 = h * Function((t + h), (x + K3));
+		x = x + (1.0 / 6) * (K1 + 2 * K2 + 2 * K3 + K4);
+		t = t_a + j * h;
+	
+		cout << j << setw(12) << fixed << setprecision(2) << t << setw(12) << fixed << setprecision(2) << x << endl;
+	}
+}
+
+
+int main()
+{
+	double h, t, a = 0, b = 1;
+	int n = 100;
+	h = (b - a) / n;
+	t = a;
+	// Begin solution output.
+	cout << "j" << setw(10) << "t" << setw(10) << "x" << endl;
+	cout << "0.00" << setw(10) << "0.00" << setw(10) << "0.00" << endl;
+	RK4(t, 0, h, n);
+
+	return 0;
+}
